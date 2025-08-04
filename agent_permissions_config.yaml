@@ -1,0 +1,248 @@
+# Agent权限配置文件
+# 定义Agent可以访问的数据范围和权限级别
+
+version: "1.0"
+description: "Agent本地数据访问权限配置"
+
+# 全局设置
+global:
+  audit_enabled: true
+  audit_level: "medium"  # low, medium, high
+  require_confirmation: false
+  session_timeout: 3600  # 秒
+  max_file_size: 10485760  # 10MB
+
+# 数据分类定义
+data_categories:
+  public:
+    description: "公开数据，可自由访问"
+    risk_level: "low"
+    audit_level: "low"
+    
+  work:
+    description: "工作相关数据"
+    risk_level: "medium"
+    audit_level: "medium"
+    
+  personal:
+    description: "个人数据"
+    risk_level: "high"
+    audit_level: "high"
+    
+  sensitive:
+    description: "敏感数据，需要特殊权限"
+    risk_level: "critical"
+    audit_level: "high"
+    require_confirmation: true
+
+# 权限配置
+permissions:
+  # 文档区域
+  documents:
+    path: "/home/user/documents"
+    category: "work"
+    operations: ["read", "write"]
+    sensitive_keywords: ["password", "secret", "private"]
+    file_types: ["txt", "doc", "docx", "pdf", "md"]
+    max_file_size: 5242880  # 5MB
+    
+  # 工作项目
+  projects:
+    path: "/home/user/projects"
+    category: "work"
+    operations: ["read", "write", "execute"]
+    sensitive_keywords: ["api_key", "token", "secret"]
+    file_types: ["py", "js", "java", "cpp", "h", "c"]
+    max_file_size: 20971520  # 20MB
+    
+  # 财务数据
+  financial:
+    path: "/home/user/financial"
+    category: "sensitive"
+    operations: ["read"]
+    sensitive_keywords: ["credit_card", "bank_account", "ssn", "tax_id"]
+    file_types: ["csv", "xlsx", "pdf", "txt"]
+    require_confirmation: true
+    audit_level: "high"
+    
+  # 个人照片
+  photos:
+    path: "/home/user/photos"
+    category: "personal"
+    operations: ["read"]
+    sensitive_keywords: []
+    file_types: ["jpg", "jpeg", "png", "gif", "bmp"]
+    max_file_size: 52428800  # 50MB
+    
+  # 私人文件
+  private:
+    path: "/home/user/private"
+    category: "sensitive"
+    operations: ["none"]
+    sensitive_keywords: ["password", "secret", "private", "confidential"]
+    file_types: ["*"]
+    require_confirmation: true
+    audit_level: "high"
+    block_access: true
+    
+  # 下载文件夹
+  downloads:
+    path: "/home/user/downloads"
+    category: "public"
+    operations: ["read", "write"]
+    sensitive_keywords: []
+    file_types: ["*"]
+    max_file_size: 104857600  # 100MB
+    
+  # 桌面
+  desktop:
+    path: "/home/user/desktop"
+    category: "work"
+    operations: ["read", "write"]
+    sensitive_keywords: ["password", "secret"]
+    file_types: ["*"]
+    max_file_size: 10485760  # 10MB
+
+# 敏感数据模式
+sensitive_patterns:
+  credit_card:
+    pattern: '\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b'
+    description: "信用卡号"
+    risk_level: "high"
+    
+  email:
+    pattern: '\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+    description: "邮箱地址"
+    risk_level: "medium"
+    
+  phone:
+    pattern: '\b\d{3}[-.]?\d{3}[-.]?\d{4}\b'
+    description: "电话号码"
+    risk_level: "medium"
+    
+  ssn:
+    pattern: '\b\d{3}-\d{2}-\d{4}\b'
+    description: "社会安全号"
+    risk_level: "high"
+    
+  password:
+    pattern: 'password["\']?\s*[:=]\s*["\']?[^"\']+["\']?'
+    description: "密码字段"
+    risk_level: "high"
+    
+  api_key:
+    pattern: 'api[_-]?key["\']?\s*[:=]\s*["\']?[a-zA-Z0-9]{20,}["\']?'
+    description: "API密钥"
+    risk_level: "high"
+    
+  token:
+    pattern: 'token["\']?\s*[:=]\s*["\']?[a-zA-Z0-9]{20,}["\']?'
+    description: "访问令牌"
+    risk_level: "high"
+
+# 脱敏规则
+sanitization_rules:
+  credit_card:
+    method: "mask_last_four"
+    description: "保留最后4位数字"
+    
+  email:
+    method: "mask_username"
+    description: "隐藏用户名部分"
+    
+  phone:
+    method: "mask_middle"
+    description: "隐藏中间数字"
+    
+  password:
+    method: "replace_all"
+    description: "完全替换为星号"
+    
+  api_key:
+    method: "mask_prefix"
+    description: "保留前4位和后4位"
+    
+  token:
+    method: "mask_prefix"
+    description: "保留前4位和后4位"
+
+# 审计配置
+audit:
+  enabled: true
+  log_level: "INFO"
+  log_file: "/var/log/agent_audit.log"
+  max_log_size: 10485760  # 10MB
+  backup_count: 5
+  
+  events_to_log:
+    - "file_read"
+    - "file_write"
+    - "file_delete"
+    - "permission_denied"
+    - "sensitive_data_detected"
+    - "sanitization_applied"
+    
+  retention_days: 90
+
+# 网络访问控制
+network_policy:
+  allowed_domains:
+    - "api.openai.com"
+    - "api.anthropic.com"
+    - "api.google.com"
+  
+  blocked_domains:
+    - "malicious-site.com"
+    - "data-leak.com"
+  
+  require_encryption: true
+  max_upload_size: 1048576  # 1MB
+
+# 会话管理
+session:
+  max_duration: 3600  # 秒
+  idle_timeout: 1800  # 秒
+  max_concurrent_sessions: 5
+  
+  session_data:
+    - "agent_id"
+    - "user_id"
+    - "permissions"
+    - "audit_events"
+    - "file_access_log"
+
+# 异常处理
+exceptions:
+  max_retries: 3
+  retry_delay: 1000  # 毫秒
+  exponential_backoff: true
+  
+  error_responses:
+    permission_denied:
+      message: "访问被拒绝：权限不足"
+      code: 403
+      
+    file_not_found:
+      message: "文件不存在"
+      code: 404
+      
+    sensitive_data:
+      message: "检测到敏感数据，已进行脱敏处理"
+      code: 200
+      
+    network_error:
+      message: "网络连接错误"
+      code: 500
+
+# 监控指标
+metrics:
+  enabled: true
+  collection_interval: 60  # 秒
+  
+  metrics_to_collect:
+    - "file_access_count"
+    - "permission_denied_count"
+    - "sensitive_data_detected_count"
+    - "sanitization_applied_count"
+    - "session_duration"
+    - "error_rate"
