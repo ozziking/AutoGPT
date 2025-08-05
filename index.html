@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1944 空战传奇</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">1944 空战传奇</h1>
+            <div class="game-stats">
+                <div class="stat-item">
+                    <span class="stat-label">分数</span>
+                    <span id="score" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">等级</span>
+                    <span id="level" class="stat-value">1</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">生命</span>
+                    <span id="lives" class="stat-value">3</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            
+            <div id="startScreen" class="screen-overlay">
+                <div class="screen-content">
+                    <h2>1944 空战传奇</h2>
+                    <p>驾驶你的战斗机，保卫祖国的蓝天！</p>
+                    <button id="startButton" class="game-button">开始游戏</button>
+                    <div class="controls-info">
+                        <p><strong>控制说明：</strong></p>
+                        <p>↑↓←→ 移动飞机</p>
+                        <p>空格键 发射子弹</p>
+                        <p>ESC 暂停游戏</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="pauseScreen" class="screen-overlay hidden">
+                <div class="screen-content">
+                    <h2>游戏暂停</h2>
+                    <button id="resumeButton" class="game-button">继续游戏</button>
+                    <button id="restartButton" class="game-button">重新开始</button>
+                </div>
+            </div>
+            
+            <div id="gameOverScreen" class="screen-overlay hidden">
+                <div class="screen-content">
+                    <h2>游戏结束</h2>
+                    <p>最终分数: <span id="finalScore">0</span></p>
+                    <p>达到等级: <span id="finalLevel">1</span></p>
+                    <button id="playAgainButton" class="game-button">再玩一次</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-footer">
+            <div class="power-ups">
+                <div class="power-up-item">
+                    <span class="power-up-icon">⚡</span>
+                    <span id="rapidFire" class="power-up-timer">0</span>
+                </div>
+                <div class="power-up-item">
+                    <span class="power-up-icon">🛡️</span>
+                    <span id="shield" class="power-up-timer">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+</html>
